@@ -30,7 +30,17 @@ void insertTre(struct SListTre* hashTable, struct Tre* newNode) {
         hashTable[index].Tail = newNode;
     }
 }
+void trim(char* s) {
+    // Trim đầu
+    while (*s == ' ') memmove(s, s + 1, strlen(s));
 
+    // Trim cuối
+    size_t len = strlen(s);
+    while (len > 0 && s[len - 1] == ' ') {
+        s[len - 1] = '\0';
+        len--;
+    }
+}
 void docDuLieuTreTuFile(struct SListTre* hashTable, const char* tenFile) {
     FILE* f = fopen(tenFile, "r");
     if (f == NULL) {
@@ -48,7 +58,10 @@ void docDuLieuTreTuFile(struct SListTre* hashTable, const char* tenFile) {
         // Dữ liệu trong file: maTre | hoLot | ten | ngay/thang/nam | hoPhuHuynh | soDienThoai | moiQuanHe | maLop
         char ngaySinhStr[15];
         char* token = strtok(line, "|");
-        if (token) strncpy(newNode->maTre, token, sizeof(newNode->maTre));
+        if (token) 
+        {
+            strncpy(newNode->maTre, token, sizeof(newNode->maTre));
+        }
 
         token = strtok(NULL, "|");
         if (token) strncpy(newNode->hoLot, token, sizeof(newNode->hoLot));
@@ -74,6 +87,7 @@ void docDuLieuTreTuFile(struct SListTre* hashTable, const char* tenFile) {
         token = strtok(NULL, "|");
         if (token) strncpy(newNode->maLop, token, sizeof(newNode->maLop));
 
+        for (char* s = newNode->maTre; *s == ' '; s++) memmove(newNode->maTre, s, strlen(s) + 1);
         insertTre(hashTable, newNode);
     }
 
@@ -85,7 +99,7 @@ void inHashTableTre(struct SListTre* hashTable) {
         printf("Bucket %d:\n", i);
         struct Tre* p = hashTable[i].Head;
         while (p != NULL) {
-            printf("  Ma Tre: %s | Họ: %s | Tên: %s | Ngày Sinh: %02d/%02d/%04d | Phụ huynh: %s | Sđt: %s | Mối quan hệ: %s | Mã lớp: %s\n",
+            printf("Ma Tre:%s | Họ: %s | Tên: %s | Ngày Sinh: %02d/%02d/%04d | Phụ huynh: %s | Sđt: %s | Mối quan hệ: %s | Mã lớp: %s\n",
                    p->maTre, p->hoLot, p->ten, p->ngay, p->thang, p->nam,
                    p->hoPhuHuynh, p->soDienThoai, p->moiQuanHe, p->maLop);
             p = p->next;
@@ -211,6 +225,7 @@ void timKiemTre(struct SListTre* hashTre, struct SListLopHoc* hashLop) {
                     // Tìm trẻ có mã lớp trùng với lop->maLop
                     for (int j = 0; j < TABLE_SIZE; j++) {
                         for (struct Tre* tre = hashTre[j].Head; tre != NULL; tre = tre->next) {
+                            
                             if (strcmp(tre->maLop, lop->maLop) == 0) {
                                 printf("Ma tre: %s | Ho ten: %s %s | Ngay sinh: %02d%02d%04d | Lop: %s\n",
                                     tre->maTre, tre->hoLot, tre->ten, tre->ngay, tre->thang, tre->nam, tre->maLop);
@@ -311,7 +326,7 @@ void inTreTheoGV(struct SListTre* hashTre, struct SListLopHoc* hashLop) {
     for(int i = 0; i < TABLE_SIZE; i++){
         for (struct LopHoc* lop = hashLop[i].Head; lop != NULL; lop = lop->next) {
             // Kiểm tra họ giáo viên bắt đầu bằng "Trần"
-            if (strncmp(lop->tenGiaoVien, "Trần", 4) == 0) {
+            if (strncmp(lop->tenGiaoVien, "Tran", 4) == 0) {
                 printf("-> Lớp %s do GV %s giảng dạy:\n", lop->maLop, lop->tenGiaoVien);
 
                 // Duyệt qua tất cả các trẻ để tìm trẻ thuộc lớp này

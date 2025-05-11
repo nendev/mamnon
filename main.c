@@ -9,6 +9,10 @@ void hienThiMenu() {
     printf("1. In danh sach lop hoc (bang bam)\n");
     printf("2. In danh sach tre (bang bam)\n");
     printf("3. Them mot tre moi\n");
+    printf("4. Tim kiem tre theo ma tre\n");
+    printf("5. Tim lop dong nhat (co nhieu tre nhat)\n");
+    printf("6. Sap xep tre theo lop va ten\n");
+    printf("7. In tre theo giao vien\n");
     printf("0. Thoat\n");
     printf("=============================================\n");
     printf("Chon chuc nang: ");
@@ -45,6 +49,22 @@ int main() {
 
             case 3:
                 themMotTre(treTable, "tre.txt");
+                break;
+
+            case 4:
+                timKiemTre(treTable, lopHocTable);
+                break;
+
+            case 5:
+                timLopDongNhat(treTable, lopHocTable);
+                break;
+
+            case 6:
+                sapXepTreTheoLopVaTen(treTable);
+                break;
+
+            case 7:
+                inTreTheoGV(treTable, lopHocTable);
                 break;
 
             case 0:

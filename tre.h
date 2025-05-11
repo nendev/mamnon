@@ -1,6 +1,7 @@
 #ifndef TRE_H
 #define TRE_H
 #define TABLE_SIZE 10 
+#include "lophoc.h"
 struct Tre {
     char maTre[10];
     char hoLot[30];

@@ -71,7 +71,7 @@ void inHashTable(struct SListLopHoc* table) {
         printf("Bucket %d:\n", i);
         struct LopHoc* p = table[i].Head;
         while (p != NULL) {
-            printf("  Ma Lp: %s | Ten Hoc Phan: %s | Giao Vien: %s\n",
+            printf("Ma lop:%s | Ten Hoc Phan: %s | Giao Vien: %s\n",
                    p->maLop, p->tenHocPhan, p->tenGiaoVien);
             p = p->next;
         }
