@@ -26,4 +26,11 @@ void insertTre(struct SListTre* hashTable, struct Tre* newNode);
 void docDuLieuTreTuFile(struct SListTre* hashTable, const char* tenFile);
 void inHashTableTre(struct SListTre* hashTable);
 void themMotTre(struct SListTre* hashTable,const char* tenFile);
+void timKiemTre(struct SListTre* hashTre, struct SListLopHoc* hashLop);
+int demTreTheoMaLop(struct SListTre* hashTre, char* maLop);
+void timLopDongNhat(struct SListTre* hashTre, struct SListLopHoc* hashLop);
+int soSanhTre(const void* a, const void* b);
+void sapXepTreTheoLopVaTen(struct SListTre* hashTre);
+void inTreTheoGV(struct SListTre* hashTre, struct SListLopHoc* hashLop);
+
 #endif

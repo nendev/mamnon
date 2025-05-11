@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tre.h"
+#include "lophoc.h"
 
 void initHashTableTre(struct SListTre* hashTable) {
     for (int i = 0; i < TABLE_SIZE; i++) {
@@ -91,6 +92,7 @@ void inHashTableTre(struct SListTre* hashTable) {
         }
     }
 }
+
 void themMotTre(struct SListTre* hashTable, const char* tenFile) {
     struct Tre newTre;
     printf("Nhap ma tre: ");
@@ -147,4 +149,183 @@ void themMotTre(struct SListTre* hashTable, const char* tenFile) {
     docDuLieuTreTuFile(hashTable, tenFile);
 
     printf("Da them tre moi va cap nhat danh sach!\n");
+}
+
+// Cau 4: Tim kiem tre theo tieu chi: ho ten giao vien or ma tre or ten lop - Ngo Gia Bao
+void timKiemTre(struct SListTre* hashTre, struct SListLopHoc* hashLop) {
+    int luaChon;
+    char tuKhoa[100];
+
+    printf("=== TIM KIEM TRE ===\n");
+    printf("1. Tim theo ho ten giao vien\n");
+    printf("2. Tim theo ma tre\n");
+    printf("3. Tim theo ten lop\n");
+    printf("Nhap lua chon (1-3): ");
+    scanf("%d", &luaChon);
+    getchar(); // Xóa ký tự '\n' dư
+
+    printf("Nhap tu khoa can tim: ");
+    fgets(tuKhoa, sizeof(tuKhoa), stdin);
+    tuKhoa[strcspn(tuKhoa, "\n")] = '\0';
+
+    int timThay = 0;
+
+    switch (luaChon)
+    {
+    case 1:
+        // Tìm kiếm theo tên họ tên giáo viên
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            for (struct LopHoc* lop = hashLop[i].Head; lop != NULL; lop = lop->next) {
+                if (strcmp(lop->tenGiaoVien, tuKhoa) == 0) {
+                    // Tìm trẻ học lớp có giáo viên đó
+                    for (int j = 0; j < TABLE_SIZE; j++) {
+                        for (struct Tre* tre = hashTre[j].Head; tre != NULL; tre = tre->next) {
+                            if (strcmp(tre->maLop, lop->maLop) == 0) {
+                                printf("Ma Tre: %s | Ho ten: %s %s | Ngay sinh: %02d%02d%04d | Lop: %s\n",
+                                    tre->maTre, tre->hoLot, tre->ten, tre->ngay, tre->thang, tre->nam, tre->maLop);
+                                timThay = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        break;
+    case 2:
+        // Tìm theo mã trẻ
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            for (struct Tre* tre = hashTre[i].Head; tre != NULL; tre = tre->next) {
+                if (strcmp(tre->maTre, tuKhoa) == 0) {
+                    printf("Ma Tre: %s | Ho ten: %s %s | Ngay sinh: %02d%02d%04d | Lop: %s\n",
+                           tre->maTre, tre->hoLot, tre->ten, tre->ngay, tre->thang, tre->nam, tre->maLop);
+                    timThay = 1;
+                }
+            }
+        }
+        break;
+    case 3:
+        // Tìm theo tên lớp
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            for (struct LopHoc* lop = hashLop[i].Head; lop != NULL; lop = lop->next) {
+                if (strcmp(lop->tenHocPhan, tuKhoa) == 0) {
+                    // Tìm trẻ có mã lớp trùng với lop->maLop
+                    for (int j = 0; j < TABLE_SIZE; j++) {
+                        for (struct Tre* tre = hashTre[j].Head; tre != NULL; tre = tre->next) {
+                            if (strcmp(tre->maLop, lop->maLop) == 0) {
+                                printf("Ma tre: %s | Ho ten: %s %s | Ngay sinh: %02d%02d%04d | Lop: %s\n",
+                                    tre->maTre, tre->hoLot, tre->ten, tre->ngay, tre->thang, tre->nam, tre->maLop);
+                                timThay = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        break;
+    default:
+        printf("Lua chon khong hop le!\n");
+        break;
+    }
+
+    if (!timThay)
+        printf("Khong tim thay tre nao phu hop.\n");
+}
+
+// Câu 5: Tìm lớp học có số lượng trẻ theo học nhiều nhất - Ngo Gia Bao
+int demTreTheoMaLop(struct SListTre* hashTre, char* maLop) { // Hàm đếm số lượng trẻ trong từng lớp
+    int count = 0;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        for (struct Tre* tre = hashTre[i].Head; tre != NULL; tre = tre->next) {
+            if (strcmp(tre->maLop, maLop) == 0) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+void timLopDongNhat(struct SListTre* hashTre, struct SListLopHoc* hashLop) { // Hàm tìm lớp có số lượng trẻ theo học nhiều nhất
+    char maLopMax[20] = "";
+    char tenGVMax[50] = "";
+    int maxCount = 0;
+
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        for (struct LopHoc* lop = hashLop[i].Head; lop != NULL; lop = lop->next) {
+            int soTre = demTreTheoMaLop(hashTre, lop->maLop);
+            if (soTre > maxCount) {
+                maxCount = soTre;
+                strcpy(maLopMax, lop->maLop);
+                strcpy(tenGVMax, lop->tenGiaoVien);
+            }
+        }
+    }
+
+    if (maxCount > 0) {
+        printf("Lop co nhieu tre nhat: %s (GV: %s) - So luong tre: %d\n", maLopMax, tenGVMax, maxCount);
+    } else {
+        printf("Khong co lop nao co tre.\n");
+    }
+}
+
+// Câu 6: Sắp xếp danh sách trẻ theo tên lớp học, những trẻ học cùng một lớp sắp xếp theo tên trẻ tăng dần - Ngo Gia Bao
+int soSanhTre(const void* a, const void* b) {
+    struct Tre* t1 = *(struct Tre**)a;
+    struct Tre* t2 = *(struct Tre**)b;
+
+    int cmpLop = strcmp(t1->maLop, t2->maLop);
+    if (cmpLop != 0)
+        return cmpLop;
+    
+    return strcmp(t1->ten, t2->ten);
+}
+
+void sapXepTreTheoLopVaTen(struct SListTre* hashTre) {
+    struct Tre* ds[1000];
+    int count = 0;
+
+    
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        for (struct Tre* p = hashTre[i].Head; p != NULL; p = p->next) {
+            ds[count++] = p;
+        }
+    }
+
+    qsort(ds, count, sizeof(struct Tre*), soSanhTre);
+
+    printf("Danh sach tre sau khi sap xep theo lop va ten tre:\n");
+    for (int i = 0; i < count; i++) {
+        printf("Ma lop: %s | Ten tre: %s %s | Ma tre: %s | Ngay sinh: %02d%02d%04d\n",
+            ds[i]->maLop,
+            ds[i]->hoLot,
+            ds[i]->ten,
+            ds[i]->maTre,
+            ds[i]->ngay,
+            ds[i]->thang,
+            ds[i]->nam);
+    }
+}
+
+// Câu 7: In ra thông tin của trẻ theo học lớp do giáo viên có họ Trần giảng dạy - Ngo Gia Bao
+void inTreTheoGV(struct SListTre* hashTre, struct SListLopHoc* hashLop) {
+    // Duyệt qua tất cả các bucket trong bảng băm của lớp
+    for(int i = 0; i < TABLE_SIZE; i++){
+        for (struct LopHoc* lop = hashLop[i].Head; lop != NULL; lop = lop->next) {
+            // Kiểm tra họ giáo viên bắt đầu bằng "Trần"
+            if (strncmp(lop->tenGiaoVien, "Trần", 4) == 0) {
+                printf("-> Lớp %s do GV %s giảng dạy:\n", lop->maLop, lop->tenGiaoVien);
+
+                // Duyệt qua tất cả các trẻ để tìm trẻ thuộc lớp này
+                for (int j = 0; j < TABLE_SIZE; j++) {
+                    for (struct Tre* tre = hashTre[j].Head; tre != NULL; tre = tre->next) {
+                        if (strcmp(tre->maLop, lop->maLop) == 0) {
+                            // In thông tin trẻ
+                            printf("- Mã trẻ: %s, Họ tên: %s %s, Ngày sinh: %02d%02d%04d, Họ tên phụ huynh: %s, SDT: %s, MQH: %s\n",
+                                tre->maTre, tre->hoLot, tre->ten, tre->ngay, tre->thang, tre->nam,
+                                tre->hoPhuHuynh, tre->soDienThoai, tre->moiQuanHe);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
